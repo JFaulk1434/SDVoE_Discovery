@@ -57,12 +57,16 @@ def _ensure_controlserver(
     if is_controlserver_running(api_url):
         return (api_url, None, False)
 
-    root = find_controlserver_root(project_root or Path(__file__).resolve().parent.parent)
+    # Pass None to try all locations (cwd, SDVOE_CONTROLSERVER_ROOT, package parent, ~/.sdvoe-discovery)
+    root = find_controlserver_root(project_root)
     if not root:
         if no_start:
             return (None, None, False)
         err_console.print("[yellow]Control server not running[/] and no controlserver-* folder found.")
-        err_console.print("Use [bold]sdvoe-discovery broadcast[/] for UDP discovery, or start the server manually.")
+        err_console.print("The Control Server is a separate process (e.g. from the BlueRiver SDK).")
+        err_console.print("  • If it is already running elsewhere, use [bold]--api-url URL --no-start[/] (e.g. [bold]--api-url http://192.168.1.10:80[/]).")
+        err_console.print("  • For discovery without the server, use [bold]sdvoe-discovery broadcast[/].")
+        err_console.print("  • To have the CLI start the server, run from a directory that contains a [bold]controlserver-*[/] folder, or put one in [bold]~/.sdvoe-discovery/[/], or set [bold]SDVOE_CONTROLSERVER_ROOT[/] to its path.")
         return (None, None, False)
 
     platforms = get_available_platform_folders(root)
@@ -138,7 +142,7 @@ def _cmd_list(parsed: argparse.Namespace) -> int:
                     with err_console.status("Starting server...", spinner="dots"):
                         time.sleep(warmup)
     if not is_controlserver_running(api_url):
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server to start it, or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/] to start from a controlserver-* folder, or [bold]--no-start[/] to skip.")
         return 1
     try:
         devices = get_device_list(
@@ -190,7 +194,7 @@ def _cmd_detail(parsed: argparse.Namespace) -> int:
                     with err_console.status("Starting server...", spinner="dots"):
                         time.sleep(warmup)
     if not is_controlserver_running(api_url):
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server to start it, or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/] to start from a controlserver-* folder, or [bold]--no-start[/] to skip.")
         return 1
     try:
         devices = get_device_details(
@@ -332,7 +336,7 @@ def _cmd_reboot(parsed: argparse.Namespace) -> int:
     """Reboot device(s). Target: device id (from list) or 'all'."""
     api_url, devices = _get_api_url_and_devices(parsed)
     if not api_url:
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/], or [bold]--no-start[/] to skip.")
         return 1
     target = _resolve_target(devices, parsed.target)
     if not target:
@@ -363,7 +367,7 @@ def _cmd_factory(parsed: argparse.Namespace) -> int:
     """Factory reset device(s). Target: device id or 'all'."""
     api_url, devices = _get_api_url_and_devices(parsed)
     if not api_url:
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/], or [bold]--no-start[/] to skip.")
         return 1
     target = _resolve_target(devices, parsed.target)
     if not target:
@@ -395,7 +399,7 @@ def _cmd_get_device(parsed: argparse.Namespace) -> int:
     """Get full device object(s). Target: device id or 'all'."""
     api_url, devices = _get_api_url_and_devices(parsed)
     if not api_url:
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/], or [bold]--no-start[/] to skip.")
         return 1
     target = _resolve_target(devices, parsed.target)
     if not target:
@@ -432,7 +436,7 @@ def _cmd_netstat(parsed: argparse.Namespace) -> int:
     """Read network statistics. Target: device id or 'all'. Use --output to write to file (recommended for 'all')."""
     api_url, devices = _get_api_url_and_devices(parsed)
     if not api_url:
-        err_console.print("[red]Error:[/] Control server not running. Use --start-server or --no-start to skip.")
+        err_console.print("[red]Error:[/] Control server not running. Use [bold]--api-url URL[/] if it runs elsewhere, [bold]--start-server[/], or [bold]--no-start[/] to skip.")
         return 1
     target = _resolve_target(devices, parsed.target)
     if not target:

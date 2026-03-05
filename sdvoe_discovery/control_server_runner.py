@@ -37,16 +37,39 @@ _BINARY_NAME = "controlserver.exe" if sys.platform == "win32" else "controlserve
 def find_controlserver_root(search_start: Optional[Path] = None) -> Optional[Path]:
     """
     Return the first directory whose name starts with "controlserver-" under search_start.
-    If search_start is None, use the package's parent (project root).
+    If search_start is None, try multiple locations in order: cwd, SDVOE_CONTROLSERVER_ROOT (if set),
+    package parent (project root when running from source), then ~/.sdvoe-discovery (for global installs).
+    search_start may be a directory that either is named controlserver-* or contains a child named controlserver-*.
     """
-    if search_start is None:
-        search_start = Path(__file__).resolve().parent.parent
-    search_start = Path(search_start)
-    if not search_start.is_dir():
+    def _find_in(root: Path) -> Optional[Path]:
+        root = Path(root)
+        if not root.is_dir():
+            return None
+        if root.name.startswith("controlserver-"):
+            return root
+        for item in sorted(root.iterdir()):
+            if item.is_dir() and item.name.startswith("controlserver-"):
+                return item
         return None
-    for item in sorted(search_start.iterdir()):
-        if item.is_dir() and item.name.startswith("controlserver-"):
-            return item
+
+    if search_start is not None:
+        return _find_in(search_start)
+
+    candidates: list[Path] = [
+        Path.cwd(),
+        Path(__file__).resolve().parent.parent,
+    ]
+    env_root = os.environ.get("SDVOE_CONTROLSERVER_ROOT")
+    if env_root:
+        candidates.insert(1, Path(env_root))
+    sdvoe_home = Path.home() / ".sdvoe-discovery"
+    if sdvoe_home not in candidates:
+        candidates.append(sdvoe_home)
+
+    for root in candidates:
+        found = _find_in(root)
+        if found is not None:
+            return found
     return None
 
 
@@ -266,7 +289,7 @@ def run_controlserver_auto(
     If in_new_window is True (default), start the server in a new minimized OS window so it persists after the CLI exits.
     Returns (base_url, process_or_None, temp_config_path). Process is None when in_new_window is True.
     """
-    project_root = Path(project_root) if project_root else Path(__file__).resolve().parent.parent
+    # Pass None to try all locations (cwd, SDVOE_CONTROLSERVER_ROOT, package parent, ~/.sdvoe-discovery)
     root = find_controlserver_root(project_root)
     if not root:
         return (None, None, None)

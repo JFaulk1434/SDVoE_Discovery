@@ -4,15 +4,7 @@ CLI and Python API for discovering and controlling SDVoE devices: **BlueRiver Co
 
 ## Install
 
-Install from PyPI (recommended):
-
-```bash
-pip install sdvoe-discovery
-```
-
-The `sdvoe-discovery` CLI will be on your PATH. Dependencies (including **rich** for CLI output) are installed automatically.
-
-**From source** (for development or unreleased changes):
+Clone the repo and install in editable mode so the Control Server can be included and auto-started by the CLI:
 
 ```bash
 git clone https://github.com/your-username/SDVoE_Discovery.git
@@ -20,7 +12,35 @@ cd SDVoE_Discovery
 pip install -e .
 ```
 
-**Note:** The BlueRiver Control Server is a separate process (e.g. from the BlueRiver SDK). The CLI can start it for you when needed, or you run it yourself.
+Place the BlueRiver Control Server (e.g. a `controlserver-*` folder from the BlueRiver SDK) in the project root. The CLI will detect it and can start the server for you when you run `list`, `detail`, or control commands.
+
+**Global install (use Control Server from anywhere):** Install with `pip install .` or `pip install -e .` (no need to be in the repo). Then put the Control Server in one of these places so the CLI can find and start it:
+
+- **`~/.sdvoe-discovery/`** — copy your `controlserver-*` folder here (e.g. `~/.sdvoe-discovery/controlserver-1.2.3/`).
+- **Or set `SDVOE_CONTROLSERVER_ROOT`** — point it at the `controlserver-*` folder:
+
+  **macOS / Linux (current terminal):**
+  ```bash
+  export SDVOE_CONTROLSERVER_ROOT=/path/to/controlserver-1.2.3
+  ```
+
+  **macOS / Linux (persistent):** Add the same line to your shell config file (`~/.zshrc`, `~/.bashrc`, or `~/.profile`), then open a new terminal or run `source ~/.zshrc` (or the file you edited).
+
+  **Windows (Command Prompt, current session):**
+  ```cmd
+  set SDVOE_CONTROLSERVER_ROOT=C:\path\to\controlserver-1.2.3
+  ```
+
+  **Windows (PowerShell, current session):**
+  ```powershell
+  $env:SDVOE_CONTROLSERVER_ROOT = "C:\path\to\controlserver-1.2.3"
+  ```
+
+  **Windows (persistent):** System Properties → Advanced → Environment Variables → New (User or System) → Variable name `SDVOE_CONTROLSERVER_ROOT`, value `C:\path\to\controlserver-1.2.3`. Restart the terminal (or reboot) for it to take effect.
+
+The CLI looks (in order) at: current directory, `SDVOE_CONTROLSERVER_ROOT`, the package/project root, then `~/.sdvoe-discovery`.
+
+**Optional:** `pip install sdvoe-discovery` from PyPI is available for discovery-only use or when you run the Control Server elsewhere; use `--api-url` to point at it, or `sdvoe-discovery broadcast` for UDP discovery without the server.
 
 ## CLI
 
@@ -191,5 +211,5 @@ r = client.netstat_read("ALL", filter_name="bandwidth")
 ## Requirements
 
 - **Python 3.9+**
-- **rich** — installed automatically with `pip install sdvoe-discovery`
+- **rich** — installed automatically with `pip install -e .`
 - **Control Server** — separate process from the BlueRiver SDK (e.g. `controlserver-*` folder). Required for API commands (list, detail, reboot, factory, get-device, netstat). Not required for `broadcast`.
