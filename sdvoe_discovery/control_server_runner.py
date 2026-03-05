@@ -33,6 +33,9 @@ _PLATFORM_MAP = {
 # Binary name per platform
 _BINARY_NAME = "controlserver.exe" if sys.platform == "win32" else "controlserver"
 
+# Fixed port for auto-started Control Server (uncommon to avoid conflicts with other software)
+DEFAULT_CONTROLSERVER_PORT = 59402
+
 
 def find_controlserver_root(search_start: Optional[Path] = None) -> Optional[Path]:
     """
@@ -280,12 +283,11 @@ def get_http_port_from_config(config_path: Path) -> Optional[int]:
 def run_controlserver_auto(
     project_root: Optional[Path] = None,
     platform_folder: Optional[str] = None,
-    preferred_port_start: int = 8080,
     in_new_window: bool = True,
 ) -> tuple[Optional[str], Optional[subprocess.Popen], Optional[Path]]:
     """
-    If control server is already running at 127.0.0.1:preferred_port_start or common ports, return (base_url, None, None).
-    Otherwise find controlserver-*, pick platform, find a free port, create temp config, start process.
+    If control server is already running at 127.0.0.1:DEFAULT_CONTROLSERVER_PORT, return (base_url, None, None).
+    Otherwise find controlserver-*, pick platform, use DEFAULT_CONTROLSERVER_PORT, create temp config, start process.
     If in_new_window is True (default), start the server in a new minimized OS window so it persists after the CLI exits.
     Returns (base_url, process_or_None, temp_config_path). Process is None when in_new_window is True.
     """
@@ -294,18 +296,13 @@ def run_controlserver_auto(
     if not root:
         return (None, None, None)
 
-    # Check if already running on a few common ports
-    for port in (80, 443, preferred_port_start, 9080, 9081):
-        url = f"http://127.0.0.1:{port}"
-        if is_controlserver_running(url):
-            return (url, None, None)
+    port = DEFAULT_CONTROLSERVER_PORT
+    url = f"http://127.0.0.1:{port}"
+    if is_controlserver_running(url):
+        return (url, None, None)
 
     binary = get_binary_path(root, platform_folder)
     if not binary:
-        return (None, None, None)
-
-    port = find_available_port(start=preferred_port_start)
-    if not port:
         return (None, None, None)
 
     platform_dir = binary.parent

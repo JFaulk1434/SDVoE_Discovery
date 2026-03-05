@@ -1,6 +1,6 @@
 """HTTP client for BlueRiver SDVoE Control Server API.
 
-Requires the control server to be running (e.g. controlserver on TCP 80 for HTTP).
+Requires the control server to be running (default port 59402 when started by the CLI).
 See PDS-062489 SDVoE Developers API Reference Guide.
 """
 
@@ -8,6 +8,10 @@ import json
 import urllib.error
 import urllib.request
 from typing import Any, Optional
+
+from sdvoe_discovery.control_server_runner import DEFAULT_CONTROLSERVER_PORT
+
+DEFAULT_API_BASE_URL = f"http://127.0.0.1:{DEFAULT_CONTROLSERVER_PORT}"
 
 
 class ControlServerError(Exception):
@@ -22,7 +26,7 @@ class ControlServerError(Exception):
 class SDVoEAPIClient:
     """Client for the BlueRiver Control Server REST API."""
 
-    def __init__(self, base_url: str = "http://127.0.0.1:80", timeout: float = 10.0):
+    def __init__(self, base_url: str = DEFAULT_API_BASE_URL, timeout: float = 10.0):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 

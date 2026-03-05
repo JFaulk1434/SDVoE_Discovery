@@ -5,7 +5,7 @@ Use these functions from other Python scripts for firmware updates, control, etc
 
 from typing import Any, Optional
 
-from sdvoe_discovery.api_client import SDVoEAPIClient, ControlServerError
+from sdvoe_discovery.api_client import SDVoEAPIClient, ControlServerError, DEFAULT_API_BASE_URL
 
 
 def _device_id_to_mac(device_id: str) -> str:
@@ -114,7 +114,7 @@ def _extract_device_detail(dev: dict) -> dict:
 
 
 def get_device_list(
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> list[dict]:
@@ -155,7 +155,7 @@ def get_device_list(
 
 
 def get_device_details(
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> list[dict]:
@@ -191,7 +191,7 @@ def get_device_details(
 
 
 def get_devices_fast(
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
 ) -> list[dict]:
     """

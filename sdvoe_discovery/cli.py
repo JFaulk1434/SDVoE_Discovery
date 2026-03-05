@@ -21,6 +21,7 @@ from sdvoe_discovery.discovery import (
 from sdvoe_discovery.device_info import get_device_list, get_device_details
 from sdvoe_discovery.api_client import SDVoEAPIClient, ControlServerError
 from sdvoe_discovery.control_server_runner import (
+    DEFAULT_CONTROLSERVER_PORT,
     find_controlserver_root,
     get_available_platform_folders,
     get_binary_path,
@@ -59,14 +60,24 @@ def _ensure_controlserver(
 
     # Pass None to try all locations (cwd, SDVOE_CONTROLSERVER_ROOT, package parent, ~/.sdvoe-discovery)
     root = find_controlserver_root(project_root)
-    if not root:
-        if no_start:
-            return (None, None, False)
+    if not root and not no_start:
+        # Give a chance to type the path (e.g. after new terminal where env var was lost)
         err_console.print("[yellow]Control server not running[/] and no controlserver-* folder found.")
-        err_console.print("The Control Server is a separate process (e.g. from the BlueRiver SDK).")
-        err_console.print("  • If it is already running elsewhere, use [bold]--api-url URL --no-start[/] (e.g. [bold]--api-url http://192.168.1.10:80[/]).")
-        err_console.print("  • For discovery without the server, use [bold]sdvoe-discovery broadcast[/].")
-        err_console.print("  • To have the CLI start the server, run from a directory that contains a [bold]controlserver-*[/] folder, or put one in [bold]~/.sdvoe-discovery/[/], or set [bold]SDVOE_CONTROLSERVER_ROOT[/] to its path.")
+        err_console.print("Tip: [bold]export SDVOE_CONTROLSERVER_ROOT[/] only lasts for this terminal; add it to [bold]~/.zshrc[/] or [bold]~/.bashrc[/] to persist.")
+        try:
+            path_input = input("Path to controlserver-* folder (or Enter to skip): ").strip()
+            if path_input:
+                user_path = Path(path_input).expanduser().resolve()
+                root = find_controlserver_root(user_path)
+        except EOFError:
+            path_input = ""
+        if not root:
+            err_console.print("The Control Server is a separate process (e.g. from the BlueRiver SDK).")
+            err_console.print("  • If it is already running elsewhere, use [bold]--api-url URL --no-start[/] (e.g. [bold]--api-url http://192.168.1.10:80[/]).")
+            err_console.print("  • For discovery without the server, use [bold]sdvoe-discovery broadcast[/].")
+            err_console.print("  • To have the CLI start the server, run from a directory that contains a [bold]controlserver-*[/] folder, or put one in [bold]~/.sdvoe-discovery/[/], or set [bold]SDVOE_CONTROLSERVER_ROOT[/] to its path.")
+            return (None, None, False)
+    elif not root:
         return (None, None, False)
 
     platforms = get_available_platform_folders(root)
@@ -108,9 +119,8 @@ def _ensure_controlserver(
             return (None, None, False)
 
     base_url, proc, temp_config = run_controlserver_auto(
-        project_root=project_root,
+        project_root=root,
         platform_folder=platform_choice,
-        preferred_port_start=8080,
     )
     if not base_url:
         err_console.print("[red]Failed to start control server.[/]")
@@ -293,7 +303,7 @@ def _cmd_broadcast(parsed: argparse.Namespace) -> int:
 
 def _get_api_url_and_devices(parsed: argparse.Namespace) -> Tuple[Optional[str], list]:
     """Ensure control server is up, optionally start it, return (api_url, devices). devices have device_id for resolving target."""
-    api_url = getattr(parsed, "api_url", "http://127.0.0.1:80")
+    api_url = getattr(parsed, "api_url", f"http://127.0.0.1:{DEFAULT_CONTROLSERVER_PORT}")
     if not getattr(parsed, "no_start", False):
         resolved_url, _, just_started = _ensure_controlserver(
             api_url,
@@ -469,7 +479,7 @@ _MAIN_HELP_EPILOG = """
 Commands and options (see also: sdvoe-discovery <command> --help):
 
   list                  Fast list (IP, MAC, name, type, firmware) from Control Server API
-    --api-url URL         API base URL (default: http://127.0.0.1:80)
+    --api-url URL         API base URL (default: http://127.0.0.1:59402)
     --timeout, -t SECS    HTTP timeout in seconds (default: 10.0)
     --request-timeout SECS  Max wait for get device in seconds (default: 60.0)
     --no-start            Do not prompt to start control server; fail if not running
@@ -501,7 +511,7 @@ Commands and options (see also: sdvoe-discovery <command> --help):
 
 def _add_control_common(parser: argparse.ArgumentParser, request_timeout_default: float = 60.0) -> None:
     """Add common options for control commands (api-url, timeout, request-timeout, no-start, start-server, server-warmup)."""
-    parser.add_argument("--api-url", default="http://127.0.0.1:80", help="Control Server API base URL")
+    parser.add_argument("--api-url", default=f"http://127.0.0.1:{DEFAULT_CONTROLSERVER_PORT}", help="Control Server API base URL")
     parser.add_argument("--timeout", "-t", type=float, default=10.0, metavar="SECS", help="HTTP timeout in seconds")
     parser.add_argument("--request-timeout", type=float, default=request_timeout_default, metavar="SECS", help="Max wait for request in seconds")
     parser.add_argument("--no-start", action="store_true", help="Do not prompt to start control server")
@@ -539,8 +549,8 @@ def main(args: Optional[list[str]] = None) -> int:
     )
     plist.add_argument(
         "--api-url",
-        default="http://127.0.0.1:80",
-        help="Control Server API base URL (default: http://127.0.0.1:80)",
+        default=f"http://127.0.0.1:{DEFAULT_CONTROLSERVER_PORT}",
+        help="Control Server API base URL (default: http://127.0.0.1:%s)" % DEFAULT_CONTROLSERVER_PORT,
     )
     plist.add_argument(
         "--timeout", "-t",
@@ -589,8 +599,8 @@ def main(args: Optional[list[str]] = None) -> int:
     )
     pdetail.add_argument(
         "--api-url",
-        default="http://127.0.0.1:80",
-        help="Control Server API base URL (default: http://127.0.0.1:80)",
+        default=f"http://127.0.0.1:{DEFAULT_CONTROLSERVER_PORT}",
+        help="Control Server API base URL (default: http://127.0.0.1:%s)" % DEFAULT_CONTROLSERVER_PORT,
     )
     pdetail.add_argument(
         "--timeout", "-t",

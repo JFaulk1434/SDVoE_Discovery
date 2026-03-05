@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 
-from sdvoe_discovery.api_client import SDVoEAPIClient, ControlServerError
+from sdvoe_discovery.api_client import SDVoEAPIClient, ControlServerError, DEFAULT_API_BASE_URL
 from sdvoe_discovery.device_info import get_device_list, get_device_details
 
 
@@ -24,7 +24,7 @@ def _normalize_mac(mac: str) -> str:
 
 def _resolve_macs_to_devices(
     macs: list[str],
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> tuple[list[dict[str, Any]], list[str]]:
@@ -53,7 +53,7 @@ def _resolve_macs_to_devices(
 
 def reboot(
     macs: list[str],
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> dict[str, Any]:
@@ -110,7 +110,7 @@ def reboot(
 
 def factory(
     macs: list[str],
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> dict[str, Any]:
@@ -168,7 +168,7 @@ def factory(
 
 def get_device(
     macs: list[str],
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 60.0,
 ) -> list[dict[str, Any]]:
@@ -203,7 +203,7 @@ def get_device(
 def netstat(
     macs: list[str],
     output_file: Optional[str | Path] = None,
-    base_url: str = "http://127.0.0.1:80",
+    base_url: str = DEFAULT_API_BASE_URL,
     timeout: float = 10.0,
     request_timeout: float = 120.0,
     filter_name: Optional[str] = None,
