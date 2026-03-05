@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdvoe-discovery"
-version = "0.1.1"
+version = "0.1.2"
 description = "CLI and Python API to discover and control SDVoE devices (BlueRiver Control Server API and UDP broadcast)."
 readme = "README.md"
 requires-python = ">=3.9"
