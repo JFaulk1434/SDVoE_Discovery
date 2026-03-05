@@ -1,0 +1,118 @@
+{
+    "protocol": {
+        "transport": "UDP",
+        "endianness": "big",
+        "discovery": {
+            "send": {
+                "port": 6239,
+                "ip": "255.255.255.255",
+                "fields": [
+                    {
+                        "Magic_number": "0x11223344"
+                    },
+                    {
+                        "Msg_ID": "UInt32"
+                    },
+                    {
+                        "Protocol_Version": 0
+                    },
+                    {
+                        "Command": 0
+                    }
+                ]
+            },
+            "response": {
+                "port": 6240,
+                "fields": [
+                    "Magic_number",
+                    "Msg_ID",
+                    "Protocol_Version",
+                    "Command",
+                    "MCU_MAC",
+                    "AVP_MAC",
+                    "Dante_MAC",
+                    "Board_type",
+                    "USB_Config",
+                    "MCU_Version"
+                ]
+            }
+        }
+    },
+    "classic_config": {
+        "commands": {
+            "2": "HDMI local loop",
+            "4": "Network isolation",
+            "6": "USB extension mode",
+            "19": "Switch video source",
+            "21": "Set video source auto-switching",
+            "23": "Single network port mode",
+            "28": "Switch USB host",
+            "30": "Mandatory clear output"
+        },
+        "values": {
+            "HDMI local loop": [
+                "0: disable",
+                "1: enable"
+            ],
+            "Network isolation": [
+                "1: disable",
+                "2: enable"
+            ],
+            "USB extension mode": [
+                "0: Auto",
+                "1: LEX",
+                "2: REX"
+            ],
+            "Switch video source": [
+                "0: USB-C",
+                "1: HDMI"
+            ],
+            "Video source auto-switching": [
+                "0: Ordinary",
+                "1: USB-C priority",
+                "2: HDMI priority"
+            ],
+            "Single network port mode": [
+                "0: disable",
+                "1: enable"
+            ],
+            "Switch USB host": [
+                "0: USB-C",
+                "1: USB-B"
+            ],
+            "Mandatory clear output": [
+                "0: disable",
+                "1: enable"
+            ]
+        }
+    },
+    "tlv_config": {
+        "protocol_version": 3,
+        "commands": {
+            "64": "General Set - Request",
+            "65": "General Set - Response",
+            "66": "General Get - Request",
+            "67": "General Get - Response",
+            "68": "General Refresh - Report"
+        },
+        "tags": {
+            "2": "HDMI local loop",
+            "4": "Network isolation",
+            "6": "USB extension mode",
+            "19": "Switch video source",
+            "21": "Auto video switching mode",
+            "23": "Single network port mode",
+            "28": "USB host",
+            "30": "Mandatory clear output",
+            "144": "USB role (read-only)",
+            "145": "Sink HDCP capability (read-only)",
+            "146": "No signal pattern",
+            "147": "No signal pattern type",
+            "149": "10G Ethernet state (read-only)",
+            "150": "10G port switch policy",
+            "151": "Active 10G port for SDVoE",
+            "152": "eARC/ARC feature enable",
+            "153": "Paired eARC/ARC TX"
+        }
+    }
+}

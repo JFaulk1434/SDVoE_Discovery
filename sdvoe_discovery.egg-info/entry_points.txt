@@ -1,0 +1,2 @@
+[console_scripts]
+sdvoe-discovery = sdvoe_discovery.cli:main
