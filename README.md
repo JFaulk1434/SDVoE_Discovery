@@ -4,13 +4,23 @@ CLI and Python API for discovering and controlling SDVoE devices: **BlueRiver Co
 
 ## Install
 
-From the project root:
+Install from PyPI (recommended):
 
 ```bash
+pip install sdvoe-discovery
+```
+
+The `sdvoe-discovery` CLI will be on your PATH. Dependencies (including **rich** for CLI output) are installed automatically.
+
+**From source** (for development or unreleased changes):
+
+```bash
+git clone https://github.com/your-username/SDVoE_Discovery.git
+cd SDVoE_Discovery
 pip install -e .
 ```
 
-Dependencies: **rich** (for CLI output). Control Server is a separate process (e.g. BlueRiver SDK `controlserver`).
+**Note:** The BlueRiver Control Server is a separate process (e.g. from the BlueRiver SDK). The CLI can start it for you when needed, or you run it yourself.
 
 ## CLI
 
@@ -180,6 +190,6 @@ r = client.netstat_read("ALL", filter_name="bandwidth")
 
 ## Requirements
 
-- Python 3.9+
-- **rich** (CLI output)
-- Control Server: separate process from BlueRiver SDK (e.g. `controlserver-*` folder)
+- **Python 3.9+**
+- **rich** — installed automatically with `pip install sdvoe-discovery`
+- **Control Server** — separate process from the BlueRiver SDK (e.g. `controlserver-*` folder). Required for API commands (list, detail, reboot, factory, get-device, netstat). Not required for `broadcast`.

@@ -4,21 +4,25 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdvoe-discovery"
-version = "0.1.0"
-description = "CLI to discover SDVoE devices on the network and show device responses."
+version = "0.1.1"
+description = "CLI and Python API to discover and control SDVoE devices (BlueRiver Control Server API and UDP broadcast)."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["rich>=13.0.0"]
-license = { text = "MIT" }
-authors = [
-  { name = "SDVoE Discovery" }
+license = "MIT"
+authors = [{ name = "SDVoE Discovery" }]
+keywords = [
+  "sdvoe",
+  "discovery",
+  "av-over-ip",
+  "cli",
+  "blueriver",
+  "control-server",
 ]
-keywords = ["sdvoe", "discovery", "av-over-ip", "cli"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -26,6 +30,10 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Topic :: Multimedia :: Video",
 ]
+
+[project.urls]
+Homepage = "https://github.com/JFaulk1434/SDVoE_Discovery"
+Repository = "https://github.com/JFaulk1434/SDVoE_Discovery"
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
