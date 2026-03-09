@@ -17,26 +17,32 @@ Place the BlueRiver Control Server (e.g. a `controlserver-*` folder from the Blu
 **Global install (use Control Server from anywhere):** Install with `pip install .` or `pip install -e .` (no need to be in the repo). Then put the Control Server in one of these places so the CLI can find and start it:
 
 - **`~/.sdvoe-discovery/`** — copy your `controlserver-*` folder here (e.g. `~/.sdvoe-discovery/controlserver-1.2.3/`).
-- **Or set `SDVOE_CONTROLSERVER_ROOT`** — point it at the `controlserver-*` folder:
+- **Or set `SDVOE_CONTROLSERVER_ROOT` (recommended: persistent setup)** — point it at the `controlserver-*` folder.
 
-  **macOS / Linux (current terminal):**
+  **Important:** one-time session commands (`export`, `set`, `$env:...`) only apply to the current terminal session. They are useful for testing, but for normal use set this variable persistently.
+
+  **macOS / Linux (persistent):**
   ```bash
-  export SDVOE_CONTROLSERVER_ROOT=/path/to/controlserver-1.2.3
+  echo 'export SDVOE_CONTROLSERVER_ROOT="/path/to/controlserver-1.2.3"' >> ~/.zshrc
+  source ~/.zshrc
   ```
+  Use `~/.bashrc` instead of `~/.zshrc` if you use bash.
 
-  **macOS / Linux (persistent):** Add the same line to your shell config file (`~/.zshrc`, `~/.bashrc`, or `~/.profile`), then open a new terminal or run `source ~/.zshrc` (or the file you edited).
+  **Windows (persistent):** System Properties -> Advanced -> Environment Variables -> New (User or System) -> Variable name `SDVOE_CONTROLSERVER_ROOT`, value `C:\path\to\controlserver-1.2.3`. Restart the terminal (or reboot) for it to take effect.
 
-  **Windows (Command Prompt, current session):**
-  ```cmd
-  set SDVOE_CONTROLSERVER_ROOT=C:\path\to\controlserver-1.2.3
-  ```
-
-  **Windows (PowerShell, current session):**
-  ```powershell
-  $env:SDVOE_CONTROLSERVER_ROOT = "C:\path\to\controlserver-1.2.3"
-  ```
-
-  **Windows (persistent):** System Properties → Advanced → Environment Variables → New (User or System) → Variable name `SDVOE_CONTROLSERVER_ROOT`, value `C:\path\to\controlserver-1.2.3`. Restart the terminal (or reboot) for it to take effect.
+  **Current terminal only (temporary):**
+  - macOS / Linux:
+    ```bash
+    export SDVOE_CONTROLSERVER_ROOT=/path/to/controlserver-1.2.3
+    ```
+  - Windows Command Prompt:
+    ```cmd
+    set SDVOE_CONTROLSERVER_ROOT=C:\path\to\controlserver-1.2.3
+    ```
+  - Windows PowerShell:
+    ```powershell
+    $env:SDVOE_CONTROLSERVER_ROOT = "C:\path\to\controlserver-1.2.3"
+    ```
 
 The CLI looks (in order) at: current directory, `SDVOE_CONTROLSERVER_ROOT`, the package/project root, then `~/.sdvoe-discovery`.
 

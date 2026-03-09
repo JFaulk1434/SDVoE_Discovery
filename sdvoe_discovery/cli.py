@@ -27,6 +27,7 @@ from sdvoe_discovery.control_server_runner import (
     get_binary_path,
     is_controlserver_running,
     run_controlserver_auto,
+    save_cached_controlserver_root,
     detect_platform,
 )
 
@@ -69,6 +70,8 @@ def _ensure_controlserver(
             if path_input:
                 user_path = Path(path_input).expanduser().resolve()
                 root = find_controlserver_root(user_path)
+                if root:
+                    save_cached_controlserver_root(root)
         except EOFError:
             path_input = ""
         if not root:
@@ -79,6 +82,8 @@ def _ensure_controlserver(
             return (None, None, False)
     elif not root:
         return (None, None, False)
+    else:
+        save_cached_controlserver_root(root)
 
     platforms = get_available_platform_folders(root)
     if not platforms:

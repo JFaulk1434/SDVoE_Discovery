@@ -35,6 +35,33 @@ _BINARY_NAME = "controlserver.exe" if sys.platform == "win32" else "controlserve
 
 # Fixed port for auto-started Control Server (uncommon to avoid conflicts with other software)
 DEFAULT_CONTROLSERVER_PORT = 59402
+_APP_HOME_DIR = Path.home() / ".sdvoe-discovery"
+_CACHED_ROOT_FILE = _APP_HOME_DIR / "controlserver_root.txt"
+
+
+def save_cached_controlserver_root(root: Path) -> None:
+    """Persist the last-known controlserver root for future runs."""
+    try:
+        root_path = Path(root).expanduser().resolve()
+        _APP_HOME_DIR.mkdir(parents=True, exist_ok=True)
+        _CACHED_ROOT_FILE.write_text(str(root_path), encoding="utf-8")
+    except Exception:
+        # Best effort only; discovery still works without cache.
+        return
+
+
+def get_cached_controlserver_root() -> Optional[Path]:
+    """Return cached controlserver root path if present and valid."""
+    try:
+        if not _CACHED_ROOT_FILE.is_file():
+            return None
+        raw = _CACHED_ROOT_FILE.read_text(encoding="utf-8").strip()
+        if not raw:
+            return None
+        p = Path(raw).expanduser().resolve()
+        return p if p.is_dir() else None
+    except Exception:
+        return None
 
 
 def find_controlserver_root(search_start: Optional[Path] = None) -> Optional[Path]:
@@ -58,14 +85,15 @@ def find_controlserver_root(search_start: Optional[Path] = None) -> Optional[Pat
     if search_start is not None:
         return _find_in(search_start)
 
-    candidates: list[Path] = [
-        Path.cwd(),
-        Path(__file__).resolve().parent.parent,
-    ]
+    candidates: list[Path] = [Path.cwd()]
     env_root = os.environ.get("SDVOE_CONTROLSERVER_ROOT")
     if env_root:
         candidates.insert(1, Path(env_root))
-    sdvoe_home = Path.home() / ".sdvoe-discovery"
+    cached_root = get_cached_controlserver_root()
+    if cached_root:
+        candidates.append(cached_root)
+    candidates.append(Path(__file__).resolve().parent.parent)
+    sdvoe_home = _APP_HOME_DIR
     if sdvoe_home not in candidates:
         candidates.append(sdvoe_home)
 
